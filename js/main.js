@@ -14,8 +14,12 @@
   const defaultLinePadding = 5;
   // set a standard line padding
   let linePadding = defaultLinePadding;
+  // I'm leaving this a let rather than a const so as to allow a drop down to choose fonts
   let font = 'Calibri';
+  // the constant for scaling, can be tweaked
   const scaling = 0.99;
+  // a variable to hold the horizontal alignment
+  let vAlign = 'left';
 
 
   function reduceCurrentFontHeight()
@@ -120,12 +124,25 @@
     let lineBottom = top + currentFontHeight;
     for(let line of lines)
     {
-      ctx.fillText(line, left, lineBottom);
+      let justifiedLeft = left;
+      if(vAlign !== 'left')
+      {
+        // figure out the difference between this line and the max
+        // as it will be required regardless of which justification is used
+        let lineWidth = ctx.measureText(line).width;
+        let space = maxWidth - lineWidth;
+        if(vAlign == 'center')
+        {
+          space /= 2;
+        }
+        justifiedLeft += space;
+      }
+      ctx.fillText(line, justifiedLeft, lineBottom);
       lineBottom += currentFontHeight + linePadding;
     }
   }
 
-  function blank_meme()
+  function generateMeme()
   {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imageLoader, 0, 0);
@@ -148,6 +165,12 @@
     a.download = 'Geordi Meme.png';
   }
 
+  function setAlignment()
+  {
+    vAlign =  $(this).val();
+    generateMeme();
+  }
+
   $(function(){
     canvas = document.getElementById('gmg_hidden');
     canvas.width = canvas.height = 720;
@@ -155,7 +178,7 @@
     ctx = canvas.getContext('2d');
     ctx.font = `${currentFontHeight}px ${font}`;
 
-    imageLoader.onload = blank_meme;
+    imageLoader.onload = generateMeme;
     imageLoader.src = './img/blank.png';
 
     visibleImage = document.getElementById('gmg_visible');
@@ -173,9 +196,11 @@
       }
     }
 
-    $bad = $('#meme-bad').val(parts.bad).change(blank_meme);
-    $good = $('#meme-good').val(parts.good).change(blank_meme);
+    $bad = $('#meme-bad').val(parts.bad).change(generateMeme);
+    $good = $('#meme-good').val(parts.good).change(generateMeme);
     $('#save-meme').click(makeItSo);
+
+    $('.alignment-btn').click(setAlignment);
 
   });
 })(window.jQuery);
