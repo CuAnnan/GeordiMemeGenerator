@@ -4,10 +4,14 @@
   let image = new Image();
   let $bad;
   let $good;
+  // set a default standard height
+  const defaultFontHeight = 40;
   // set a standard height
-  let currentFontHeight = 40;
+  let currentFontHeight = defaultFontHeight;
+  // set a default standard line padding;
+  const defaultLinePadding = 5;
   // set a standard line padding
-  let linePadding = 5;
+  let linePadding = defaultLinePadding;
   let font = 'Calibri';
 
 
@@ -21,6 +25,9 @@
 
   function wrapMemeText(text, left, top)
   {
+    currentFontHeight = defaultFontHeight;
+    linePadding = defaultLinePadding;
+    ctx.font = `${currentFontHeight}px ${font}`;
     if(!text.length)
     {
       return;
