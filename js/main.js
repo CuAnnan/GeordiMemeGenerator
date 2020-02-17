@@ -149,8 +149,22 @@
     image.onload = blank_meme;
     image.src = './img/blank.png';
 
-    $bad = $('#meme-bad').change(blank_meme);
-    $good = $('#meme-good').change(blank_meme);
+    let urlVars = window.location.href.split('?')[1];
+    let parts = {bad:'', good:''};
+    if(urlVars)
+    {
+      console.log(urlVars);
+      let urlPairs = urlVars.split('&');
+      for(let pair of urlPairs)
+      {
+        let [key, val] = pair.split('=');
+        val = decodeURI(val);
+        parts[key.toLowerCase()] = val;
+      }
+    }
+
+    $bad = $('#meme-bad').val(parts.bad).change(blank_meme);
+    $good = $('#meme-good').val(parts.good).change(blank_meme);
     $('#save-meme').click(makeItSo);
 
   });
