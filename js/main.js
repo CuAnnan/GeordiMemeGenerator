@@ -1,7 +1,9 @@
 (function($){
   let ctx;
   let canvas;
-  let image = new Image();
+  let imageLoader = new Image();
+  let visibleImage;
+
   let $bad;
   let $good;
   // set a default standard height
@@ -13,13 +15,13 @@
   // set a standard line padding
   let linePadding = defaultLinePadding;
   let font = 'Calibri';
-
+  const scaling = 0.99;
 
 
   function reduceCurrentFontHeight()
   {
-    currentFontHeight *= 0.9;
-    linePadding *= 0.9;
+    currentFontHeight *= scaling;
+    linePadding *= scaling;
     ctx.font = `${currentFontHeight}px ${font}`;
   }
 
@@ -62,7 +64,6 @@
     let shrinking = true;
     while(shrinking)
     {
-      console.log(ctx.font);
       // assume that the font shrinking worked
       shrinking = false;
       // reset the ticker
@@ -110,9 +111,7 @@
       shrinking = totalHeight > maxHeight;
       if(shrinking)
       {
-        currentFontHeight *= 0.9;
-        linePadding *= 0.9;
-        ctx.font = `${currentFontHeight}pt ${font}`;
+        reduceCurrentFontHeight();
         lines = [];
         currentLine = '';
       }
@@ -129,13 +128,16 @@
   function blank_meme()
   {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0);
+    ctx.drawImage(imageLoader, 0, 0);
 
     let good = $good.val();
     let bad = $bad.val();
 
     wrapMemeText(bad, 365, 5);
     wrapMemeText(good, 365, 365);
+
+    visibleImage.src = canvas.toDataURL("image/png");
+
   }
 
   function makeItSo()
@@ -147,20 +149,21 @@
   }
 
   $(function(){
-    canvas = document.getElementById('gmg');
+    canvas = document.getElementById('gmg_hidden');
     canvas.width = canvas.height = 720;
 
     ctx = canvas.getContext('2d');
     ctx.font = `${currentFontHeight}px ${font}`;
 
-    image.onload = blank_meme;
-    image.src = './img/blank.png';
+    imageLoader.onload = blank_meme;
+    imageLoader.src = './img/blank.png';
+
+    visibleImage = document.getElementById('gmg_visible');
 
     let urlVars = window.location.href.split('?')[1];
     let parts = {bad:'', good:''};
     if(urlVars)
     {
-      console.log(urlVars);
       let urlPairs = urlVars.split('&');
       for(let pair of urlPairs)
       {
