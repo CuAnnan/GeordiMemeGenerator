@@ -21,8 +21,13 @@
   let font = 'Calibri';
   // the constant for scaling, can be tweaked
   const scaling = 0.99;
-  // a variable to hold the horizontal alignment
+  // a variable to hold the vertical alignment
   let vAlign = 'left';
+  // a variable to hold the horizontal alignment
+  let hAlign = 'top';
+  // a variable to hold the total height of the text
+  // this is needed for the horizonal alignment offset
+  let totalTextHeight = 0;
 
 
   function reduceCurrentFontHeight()
@@ -35,6 +40,16 @@
   function renderTextLines(lines, top, left)
   {
     let lineBottom = top + currentFontHeight;
+    if(hAlign !== 'top')
+    {
+      let offset = maxHeight - totalTextHeight;
+      if(hAlign === 'center')
+      {
+        offset /= 2;
+      }
+      lineBottom += offset;
+    }
+
     for(let line of lines)
     {
       let justifiedLeft = left;
@@ -44,7 +59,7 @@
         // as it will be required regardless of which justification is used
         let lineWidth = ctx.measureText(line).width;
         let space = maxWidth - lineWidth;
-        if(vAlign == 'center')
+        if(vAlign === 'center')
         {
           space /= 2;
         }
@@ -144,8 +159,8 @@
 
       // check that the current array fits within the max height and if not, shrink the text
       // and start the entire process again
-      let totalHeight = lines.length * (currentFontHeight + linePadding);
-      shrinking = totalHeight > maxHeight;
+      totalTextHeight = lines.length * (currentFontHeight + linePadding);
+      shrinking = totalTextHeight > maxHeight;
       if(shrinking)
       {
         reduceCurrentFontHeight();
@@ -184,9 +199,21 @@
     a.download = 'Geordi Meme.png';
   }
 
-  function setAlignment()
+  function setVerticalAlignment()
   {
     vAlign =  $(this).val();
+    generateMeme();
+  }
+
+  function setHorizontalAlignment()
+  {
+    hAlign = $(this).val();
+    generateMeme();
+  }
+
+  function setFont()
+  {
+    font = $(this).val();
     generateMeme();
   }
 
@@ -209,10 +236,13 @@
     blankImageHTMLEntity.src = './img/blank.png';
 
     // bind the event handlers
+    $('#save-meme').click(makeItSo);
+    $('.alignment-btn').click(setVerticalAlignment);
+    $('.horizontal-alignment-btn').click(setHorizontalAlignment);
+    $('#font-choice').change(setFont);
+    // we also want references to these dom elements as we frequently check their values
     $bad = $('#meme-bad').change(generateMeme);
     $good = $('#meme-good').change(generateMeme);
-    $('#save-meme').click(makeItSo);
-    $('.alignment-btn').click(setAlignment);
 
   });
 })(window.jQuery);
